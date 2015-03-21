@@ -1,0 +1,31 @@
+{
+  "name": "binnacle-js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/integrallis/binnacle-js",
+  "authors": [
+    "Brian Sam-Bodden <bsbodden@integrallis.com>"
+  ],
+  "description": "JQuery Client for Binnacle.io Distributed Logging and Push Service",
+  "main": "dist/binnacle.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "binnacle"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "atmosphere": "2.2.7",
+    "moment": "2.9.0",
+    "jquery": "2.1.3",
+    "jquery-ui": "1.11.3",
+    "bootstrap-css": "3.2.0"
+  }
+}

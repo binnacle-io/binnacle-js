@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Binnacle JS Test Page</title>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="../build/lib/bootstrap-css/bootstrap.min.css" rel="stylesheet" media="screen">
+    </head>
+    <body>
+      <div class="container">
+        <h1>Binnacle JS Test Page</h1>
+
+        <legend>Enter a app/context to subscribe to:</legend>
+
+        <form class="form-inline" id="subscription" method="get">
+          <fieldset>
+            <input name="endPoint" type="text" value="http://localhost:8080" class="form-control input-sm" />
+            <input name="accountId" type="text" placeholder="Enter the account id..." class="form-control input-sm" />
+            <input name="appId" type="text" placeholder="Enter the app id..." class="form-control input-sm" />
+            <input name="contextId" type="text" placeholder="Enter the context id..." class="form-control input-sm" />
+            <input name="apiKey" type="text" placeholder="Enter the API key..." class="form-control input-sm" />
+            <input name="apiSecret" type="text" placeholder="Enter the API secret..." class="form-control input-sm" />
+            <button type="submit" class="btn btn-inverse">Subscribe</button>
+          </fieldset>
+        </form>
+
+        <div id="eventsTable" class="hide">
+          <h3>Events</h3>
+
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Client</th>
+                <th>Ctx</th>
+                <th>Session</th>
+                <th>Time</th>
+                <th>Client Time</th>
+                <th>IP</th>
+                <th>Level</th>
+                <th>Tags</th>
+                <th>JSON</th>
+                <th>ENV</th>
+              </tr>
+            </thead>
+
+            <tbody id="events">
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <script src="../build/lib/jquery/jquery.js"></script>
+      <script src="../build/lib/jquery-ui/jquery-ui.js"></script>
+      <script src="../build/dist/binnacle.js"></script>
+
+      <script>
+      $(document).ready(function() {
+        var binnacle = null;
+        var binnacleEventHandler = function(event) {
+          var $event = '<tr>';
+          $event = $event + '<td class="small">' + event.eventName + '</td>';
+          $event = $event + '<td class="small">' + event.clientId + '</td>';
+          $event = $event + '<td class="small">' + event.contextId + '</td>';
+          $event = $event + '<td class="small">' + event.sessionId + '</td>';
+          $event = $event + '<td class="small">' + event.eventTime + '</td>';
+          $event = $event + '<td class="small">' + event.clientEventTime + '</td>';
+          $event = $event + '<td class="small">' + event.ipAddress + '</td>';
+          $event = $event + '<td class="small">' + event.logLevel + '</td>';
+          $event = $event + '<td class="small">' + event.tags + '</td>';
+          $event = $event + '<td class="small">' + JSON.stringify(event.json) + '</td>';
+          $event = $event + '<td class="small">' + event.env + '</td>';
+          $event = $event + '</tr>'
+
+          var $eventsTable = $('#eventsTable')
+          $('#events').prepend($event);
+          $messages.animate({ scrollTop: $messages.prop("scrollHeight") }, 500);
+          $("#events tr:first").effect("highlight", {}, 2000);
+        };
+
+        $subscription = $('#subscription');
+        $subscription.submit(function( event ) {
+          var endPoint = $( "input[name='endPoint']" ).val();
+          var accountId = $( "input[name='accountId']" ).val();
+          var appId = $( "input[name='appId']" ).val();
+          var contextId = $( "input[name='contextId']" ).val();
+          var apiKey = $( "input[name='apiKey']" ).val();
+          var apiSecret = $( "input[name='apiSecret']" ).val();
+
+          console.log("endPoint ==> " + endPoint);
+          console.log("accountId ==> " + accountId);
+
+          var client = new Binnacle.Client({
+            accountId: accountId,
+            appId: appId,
+            apiKey: apiKey,
+            apiSecret: apiSecret,
+            endPoint: endPoint,
+            contextId: contextId,
+            onSignal: binnacleEventHandler
+          });
+
+          $('#eventsTable').removeClass('hide');
+          client.subscribe();
+          event.preventDefault();
+        });
+
+
+      });
+      </script>
+    </body>
+</html>
