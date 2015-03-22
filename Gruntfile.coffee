@@ -91,15 +91,9 @@ module.exports = (grunt)->
       options:
         files: ['package.json', 'bower.json']
         updateConfigs: ['pkg']
-        commit: true
-        commitMessage: 'Bump version to %VERSION%'
-        commitFiles: ['-a']
-        createTag: true
-        tagName: 'v%VERSION%'
-        tagMessage: 'Version %VERSION%'
-        push: true
-        pushTo: 'origin'
-        gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
+        commit: false
+        createTag: false
+        push: false
 
     bower:
       install:
@@ -118,6 +112,30 @@ module.exports = (grunt)->
         bowerOptions:
           relative: false
 
+    copy:
+      release:
+        src: ['build/dist/']
+        dest: 'release/'
+
+    release:
+      options:
+        bump: false
+        commitMessage: 'Release <%= version %>'
+
+    bowerRelease:
+      main:
+        options:
+          endpoint: 'git://github.com/integrallis/binnacle-js.git'
+          packageName: 'some-package-stable.js'
+          stageDir: 'staging-stable/'
+        files: [
+          expand: true
+          cwd: 'build/stable/'
+          src: [
+            'binnacle.js'
+            'binnacle.min.js'
+          ]
+        ]
 
   # load plugins that provide the tasks defined in the config
   grunt.loadNpmTasks 'grunt-bump'
@@ -125,17 +143,22 @@ module.exports = (grunt)->
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-concat'
+  grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-jasmine'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-shell'
   grunt.loadNpmTasks 'grunt-bower-task'
   grunt.loadNpmTasks 'grunt-bower-concat'
+  grunt.loadNpmTasks 'grunt-release'
+  grunt.loadNpmTasks 'grunt-bower-release'
 
   # register tasks
   grunt.registerTask 'default', ['build']
   grunt.registerTask 'build', ['clean', 'bower', 'coffeelint', 'coffee', 'bower_concat', 'concat', 'uglify']
   grunt.registerTask 'test', ['build', 'jasmine']
-  grunt.registerTask 'release', 'Release a new version, push it and publish it', (target)->
-    target = 'patch' unless target
-    grunt.task.run 'bump-only:#{target}', 'test', 'bump-commit', 'shell:publish'
+
+  grunt.registerTask 'publish', ['publish:patch']
+  grunt.registerTask 'publish:patch', ['clean', 'test', 'bump:patch', 'copy:release', 'release']
+  grunt.registerTask 'publish:minor', ['clean', 'test', 'bump:minor', 'copy:release', 'release']
+  grunt.registerTask 'publish:major', ['clean', 'test', 'bump:major', 'copy:release', 'release']

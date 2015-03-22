@@ -6,7 +6,7 @@
     "Brian Sam-Bodden <bsbodden@integrallis.com>"
   ],
   "description": "JQuery Client for Binnacle.io Distributed Logging and Push Service",
-  "main": "dist/binnacle.js",
+  "main": "release/binnacle.js",
   "moduleType": [
     "globals"
   ],
@@ -23,7 +23,9 @@
   ],
   "dependencies": {
     "atmosphere": "2.2.7",
-    "moment": "2.9.0",
+    "moment": "2.9.0"
+  },
+  "devDependencies": {
     "jquery": "2.1.3",
     "jquery-ui": "1.11.3",
     "bootstrap-css": "3.2.0"
