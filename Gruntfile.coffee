@@ -89,7 +89,7 @@ module.exports = (grunt)->
 
     bump:
       options:
-        files: ['package.json', 'bower.json']
+        files: ['package.json']
         updateConfigs: ['pkg']
         commit: false
         createTag: false
@@ -124,6 +124,9 @@ module.exports = (grunt)->
       options:
         bump: false
         commitMessage: 'Release <%= version %>'
+        commit: false
+        tag: false
+        push: false
 
     bowerRelease:
       main:
@@ -161,6 +164,6 @@ module.exports = (grunt)->
   grunt.registerTask 'test', ['build', 'jasmine']
 
   grunt.registerTask 'publish', ['publish:patch']
-  grunt.registerTask 'publish:patch', ['clean', 'test', 'bump:patch', 'copy:release', 'release']
-  grunt.registerTask 'publish:minor', ['clean', 'test', 'bump:minor', 'copy:release', 'release']
-  grunt.registerTask 'publish:major', ['clean', 'test', 'bump:major', 'copy:release', 'release']
+  grunt.registerTask 'publish:patch', ['clean', 'test', 'bump:patch', 'copy:release', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:minor', ['clean', 'test', 'bump:minor', 'copy:release', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:major', ['clean', 'test', 'bump:major', 'copy:release', 'release', 'bowerRelease:main']
