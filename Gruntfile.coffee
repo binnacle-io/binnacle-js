@@ -132,12 +132,14 @@ module.exports = (grunt)->
           endpoint: 'git://github.com/integrallis/binnacle-js.git'
           stageDir: 'staging/'
         files: [
-          expand: true
-          cwd: 'release/'
-          src: [
-            'binnacle.js'
-            'binnacle.min.js'
-          ]
+          {
+            expand: true
+            cwd: 'release/'
+            src: [
+              'binnacle.js'
+              'binnacle.min.js'
+            ]
+          }
         ]
 
   # load plugins that provide the tasks defined in the config
