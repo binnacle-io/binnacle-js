@@ -91,6 +91,7 @@ module.exports = (grunt)->
       options:
         files: ['package.json']
         updateConfigs: ['pkg']
+        pushTo: 'origin'
 
     bower:
       install:
