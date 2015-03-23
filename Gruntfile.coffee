@@ -114,8 +114,11 @@ module.exports = (grunt)->
 
     copy:
       release:
+        expand: true
+        flatten: true
         src: ['build/dist/*.js']
         dest: 'release/'
+        filter: 'isFile'
 
     release:
       options:
