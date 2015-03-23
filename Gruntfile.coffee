@@ -114,7 +114,7 @@ module.exports = (grunt)->
 
     copy:
       release:
-        src: ['build/dist/']
+        src: ['build/dist/*.js']
         dest: 'release/'
 
     release:
@@ -126,11 +126,10 @@ module.exports = (grunt)->
       main:
         options:
           endpoint: 'git://github.com/integrallis/binnacle-js.git'
-          packageName: 'some-package-stable.js'
-          stageDir: 'staging-stable/'
+          stageDir: 'staging/'
         files: [
           expand: true
-          cwd: 'build/stable/'
+          cwd: 'release/'
           src: [
             'binnacle.js'
             'binnacle.min.js'
