@@ -89,7 +89,7 @@ module.exports = (grunt)->
 
     bump:
       options:
-        files: ['package.json']
+        files: ['package.json', 'bower.json']
         updateConfigs: ['pkg']
         pushTo: 'origin'
 
@@ -162,6 +162,6 @@ module.exports = (grunt)->
   grunt.registerTask 'test', ['build', 'jasmine']
 
   grunt.registerTask 'publish', ['publish:patch']
-  grunt.registerTask 'publish:patch', ['clean', 'test', 'copy:release', 'bump:patch', 'release', 'bowerRelease:main']
-  grunt.registerTask 'publish:minor', ['clean', 'test', 'copy:release', 'bump:minor', 'release', 'bowerRelease:main']
-  grunt.registerTask 'publish:major', ['clean', 'test', 'copy:release', 'bump:major', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:patch', ['clean', 'bump:patch', 'test', 'copy:release', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:minor', ['clean', 'bump:minor', 'test', 'copy:release', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:major', ['clean', 'bump:major', 'test', 'copy:release', 'release', 'bowerRelease:main']
