@@ -91,9 +91,6 @@ module.exports = (grunt)->
       options:
         files: ['package.json']
         updateConfigs: ['pkg']
-        commit: false
-        createTag: false
-        push: false
 
     bower:
       install:
@@ -164,6 +161,6 @@ module.exports = (grunt)->
   grunt.registerTask 'test', ['build', 'jasmine']
 
   grunt.registerTask 'publish', ['publish:patch']
-  grunt.registerTask 'publish:patch', ['clean', 'test', 'bump:patch', 'copy:release', 'release', 'bowerRelease:main']
-  grunt.registerTask 'publish:minor', ['clean', 'test', 'bump:minor', 'copy:release', 'release', 'bowerRelease:main']
-  grunt.registerTask 'publish:major', ['clean', 'test', 'bump:major', 'copy:release', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:patch', ['clean', 'test', 'copy:release', 'bump:patch', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:minor', ['clean', 'test', 'copy:release', 'bump:minor', 'release', 'bowerRelease:main']
+  grunt.registerTask 'publish:major', ['clean', 'test', 'copy:release', 'bump:major', 'release', 'bowerRelease:main']
