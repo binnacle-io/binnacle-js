@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.0.3
+# Binnacle JS - v0.0.4
 # ==============================================================
 # Copyright (c) 2015 Brian Sam-Bodden
 # Licensed MIT.
@@ -6465,102 +6465,79 @@
     }
 }).call(this);
 
-(function(root) {
-  var fn;
-  fn = function() {
-    var Class, args, name, obj, subpackage, target;
-    args = arguments[0];
-    target = root;
-    while (true) {
-      for (subpackage in args) {
-        obj = args[subpackage];
-        target = target[subpackage] || (target[subpackage] = {});
-        args = obj;
+var root;
+
+root = typeof global !== "undefined" && global !== null ? global : window;
+
+if (root.Binnacle == null) {
+  root.Binnacle = {};
+}
+
+Binnacle.Client = (function() {
+  function Client(options) {
+    var x;
+    this.options = options;
+    this.contextChannelUrl = this.options.endPoint + '/api/subscribe/' + ((function() {
+      var _i, _len, _ref, _results;
+      _ref = [this.options.accountId, this.options.appId, this.options.contextId];
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        x = _ref[_i];
+        if (x != null) {
+          _results.push(x);
+        }
       }
-      if (typeof args !== 'object') {
-        break;
-      }
-    }
-    Class = args;
-    if (arguments[0].hasOwnProperty('global')) {
-      target = root;
-    }
-    name = Class.toString().match(/^function\s(\w+)\(/)[1];
-    return target[name] = Class;
+      return _results;
+    }).call(this)).join('-');
+    this.appChannelUrl = this.options.endPoint + '/api/subscribe/' + [this.options.accountId, this.options.appId].join('-');
+    this.messagesReceived = 0;
+  }
+
+  Client.prototype.signal = function(event) {
+    console.log("Signalling " + event);
+    return post(this.contextChannelUrl, event);
   };
-  root.namespace = fn;
-  return root.module = fn;
-})(typeof global !== "undefined" && global !== null ? global : window);
 
-var Client;
-
-namespace({
-  Binnacle: Client = (function() {
-    function Client(options) {
-      var x;
-      this.options = options;
-      this.contextChannelUrl = this.options.endPoint + '/api/subscribe/' + ((function() {
-        var _i, _len, _ref, _results;
-        _ref = [this.options.accountId, this.options.appId, this.options.contextId];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          x = _ref[_i];
-          if (x != null) {
-            _results.push(x);
-          }
-        }
-        return _results;
-      }).call(this)).join('-');
-      this.appChannelUrl = this.options.endPoint + '/api/subscribe/' + [this.options.accountId, this.options.appId].join('-');
-      this.messagesReceived = 0;
+  Client.prototype.subscribe = function(subscribeToApp) {
+    var request, socket,
+      _this = this;
+    if (subscribeToApp == null) {
+      subscribeToApp = false;
     }
-
-    Client.prototype.signal = function(event) {
-      console.log("Signalling " + event);
-      return post(this.contextChannelUrl, event);
+    socket = atmosphere;
+    request = new atmosphere.AtmosphereRequest();
+    request.url = subscribeToApp ? this.appChannelUrl : this.contextChannelUrl;
+    request.contentType = 'application/json';
+    request.logLevel = 'debug';
+    request.transport = 'websocket';
+    request.fallbackTransport = 'long-polling';
+    request.onOpen = function(response) {
+      return console.log('Binnacle connected using ' + response.transport);
     };
-
-    Client.prototype.subscribe = function(subscribeToApp) {
-      var request, socket,
-        _this = this;
-      if (subscribeToApp == null) {
-        subscribeToApp = false;
+    request.onError = function(response) {
+      return console.log('Sorry, but there\'s some problem with your socket or the server is down');
+    };
+    request.onMessage = function(response) {
+      var e, json, message, messageAsString;
+      _this.messagesReceived = _this.messagesReceived + 1;
+      json = response.responseBody;
+      try {
+        message = JSON.parse(json);
+        message.eventTime = moment(new Date(message['eventTime'])).format();
+        message.clientEventTime = moment(new Date(message['clientEventTime'])).format();
+        messageAsString = JSON.stringify(json);
+        console.log('Received Message ==> \n' + messageAsString);
+        return _this.options.onSignal(message);
+      } catch (_error) {
+        e = _error;
+        return console.log('This doesn\'t look like a valid JSON: ', message.data);
       }
-      socket = atmosphere;
-      request = new atmosphere.AtmosphereRequest();
-      request.url = subscribeToApp ? this.appChannelUrl : this.contextChannelUrl;
-      request.contentType = 'application/json';
-      request.logLevel = 'debug';
-      request.transport = 'websocket';
-      request.fallbackTransport = 'long-polling';
-      request.onOpen = function(response) {
-        return console.log('Binnacle connected using ' + response.transport);
-      };
-      request.onError = function(response) {
-        return console.log('Sorry, but there\'s some problem with your socket or the server is down');
-      };
-      request.onMessage = function(response) {
-        var e, json, message, messageAsString;
-        _this.messagesReceived = _this.messagesReceived + 1;
-        json = response.responseBody;
-        try {
-          message = JSON.parse(json);
-          message.eventTime = moment(new Date(message['eventTime'])).format();
-          message.clientEventTime = moment(new Date(message['clientEventTime'])).format();
-          messageAsString = JSON.stringify(json);
-          console.log('Received Message ==> \n' + messageAsString);
-          return _this.options.onSignal(message);
-        } catch (_error) {
-          e = _error;
-          return console.log('This doesn\'t look like a valid JSON: ', message.data);
-        }
-      };
-      return socket.subscribe(request);
     };
+    return socket.subscribe(request);
+  };
 
-    Client.prototype.messagesReceived = Client.messagesReceived;
+  Client.prototype.messagesReceived = Client.messagesReceived;
 
-    return Client;
+  return Client;
 
-  })()
-});
+})();
