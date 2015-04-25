@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.0.5
+# Binnacle JS - v0.0.6
 # ==============================================================
 # Copyright (c) 2015 Brian Sam-Bodden
 # Licensed MIT.
@@ -6493,12 +6493,6 @@ Binnacle.Client = (function() {
     }).call(this)).join('-');
     this.appChannelUrl = ("" + this.options.endPoint + "/api/subscribe/") + [this.options.accountId, this.options.appId].join('-');
     this.messagesReceived = 0;
-    if (this.logLevel == null) {
-      this.logLevel = 'info';
-    }
-    if (this.missedMessages == null) {
-      this.missedMessages = {};
-    }
   }
 
   Client.prototype.signal = function(event) {
@@ -6515,6 +6509,15 @@ Binnacle.Client = (function() {
     socket = atmosphere;
     request = new atmosphere.AtmosphereRequest();
     request.url = subscribeToApp ? this.appChannelUrl : this.contextChannelUrl;
+    if (this.options.missedMessages) {
+      request.url += "?mm=true";
+      if (this.options.limit) {
+        request.url += "&mm-limit=" + this.options.limit;
+      }
+      if (this.options.since) {
+        request.url += "&mm-since=" + this.options.since;
+      }
+    }
     request.contentType = 'application/json';
     request.logLevel = 'debug';
     request.transport = 'websocket';
@@ -6524,7 +6527,7 @@ Binnacle.Client = (function() {
       return console.log("Binnacle connected using " + response.transport);
     };
     request.onError = function(response) {
-      return console.log('Sorry, but there\'s some problem with your socket or the Binnacle server is down');
+      return console.log("Sorry, but there's some problem with your socket or the Binnacle server is down");
     };
     request.onMessage = function(response) {
       var e, json, message, messageAsString, messages, payload, _i, _len;
@@ -6533,21 +6536,25 @@ Binnacle.Client = (function() {
       try {
         payload = JSON.parse(json);
         if (Object.prototype.toString.call(payload) === '[object Array]') {
-          for (_i = 0, _len = payload.length; _i < _len; _i++) {
-            message = payload[_i];
-            messages = configureMessage(message);
+          if (_this.options.onSignals != null) {
+            messages = [];
+            for (_i = 0, _len = payload.length; _i < _len; _i++) {
+              message = payload[_i];
+              messages.push(configureMessage(message));
+            }
+            _this.options.onSignals(messages);
           }
-          _this.options.onSignals(messages);
         } else {
-          message = configureMessage(payload);
-          _this.options.onSignal(message);
+          if (_this.options.onSignal != null) {
+            message = configureMessage(payload);
+            _this.options.onSignal(message);
+          }
         }
-        end;
         messageAsString = JSON.stringify(json);
-        return console.log("Received Message ==> \n" + messageAsString);
+        return console.log("Received Message: \n" + messageAsString);
       } catch (_error) {
         e = _error;
-        return console.log('This doesn\'t look like valid JSON: ', message.data);
+        return console.log("Error processing payload: \n " + json, e);
       }
     };
     return socket.subscribe(request);
