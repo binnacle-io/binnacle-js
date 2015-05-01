@@ -85,7 +85,27 @@ module.exports = (grunt)->
       options:
         vendor: ['build/lib/atmosphere/atmosphere.js', 'build/lib/moment/moment.js']
         specs: 'build/test/*.spec.js'
-      src: 'build/dist/<%= pkg.name %>.js'
+      src: 'build/transpiled/client.js'
+
+      coverage:
+        src: 'build/transpiled/client.js'
+        options:
+          specs: 'build/test/<%= pkg.name %>.spec.js'
+          template: require('grunt-template-jasmine-istanbul')
+          templateOptions:
+            coverage: 'build/coverage/coverage.json'
+            report: [
+              {
+                type: 'html'
+                options: dir: 'build/coverage/html'
+              }
+              {
+                type: 'lcov'
+                options:
+                  dir: 'build/coverage/lcov'
+              }
+              { type: 'text-summary' }
+            ]
 
     bump:
       options:
@@ -157,11 +177,12 @@ module.exports = (grunt)->
   grunt.loadNpmTasks 'grunt-bower-concat'
   grunt.loadNpmTasks 'grunt-release'
   grunt.loadNpmTasks 'grunt-bower-release'
+  grunt.loadNpmTasks 'grunt-template-jasmine-istanbul'
 
   # register tasks
   grunt.registerTask 'default', ['build']
   grunt.registerTask 'build', ['clean', 'bower', 'coffeelint', 'coffee', 'bower_concat', 'concat', 'uglify']
-  grunt.registerTask 'test', ['build', 'jasmine']
+  grunt.registerTask 'test', ['build', 'jasmine', 'jasmine:coverage']
 
   grunt.registerTask 'publish', ['publish:patch']
   grunt.registerTask 'publish:patch', ['clean', 'bump:patch', 'test', 'copy:release', 'release', 'bowerRelease:main']
