@@ -1,6 +1,10 @@
 node_modules
 test
 .DS_Store
-build
+build/coverage/*
+build/dependencies/*
+build/dist/*
+build/lib/*
+build/test/*s
 bower_components
 npm-debug.log
