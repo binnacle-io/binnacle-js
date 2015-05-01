@@ -29,6 +29,8 @@
     "test": "grunt test"
   },
   "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-cli": "~0.1.13",
     "grunt-bower-concat": "^0.4.0",
     "grunt-bower-release": "0.0.5",
     "grunt-bower-task": "^0.4.0",
