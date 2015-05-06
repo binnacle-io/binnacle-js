@@ -25,6 +25,7 @@ Binnacle.Client = (function() {
       return results;
     }).call(this)).join('-');
     this.appChannelUrl = (this.options.endPoint + "/api/subscribe/") + [this.options.accountId, this.options.appId].join('-');
+    this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
     this.messagesReceived = 0;
   }
 
@@ -34,7 +35,7 @@ Binnacle.Client = (function() {
   };
 
   Client.prototype.subscribe = function(subscribeToApp) {
-    var request, socket;
+    var request, sep, socket;
     if (subscribeToApp == null) {
       subscribeToApp = false;
     }
@@ -49,6 +50,10 @@ Binnacle.Client = (function() {
       if (this.options.since) {
         request.url += "&mm-since=" + this.options.since;
       }
+    }
+    if (this.options.identity) {
+      sep = this.options.missedMessages ? '&' : '?';
+      request.url += sep + "psId=" + this.options.identity;
     }
     request.contentType = 'application/json';
     request.logLevel = 'debug';
@@ -78,9 +83,18 @@ Binnacle.Client = (function() {
               _this.options.onSignals(messages);
             }
           } else {
-            if (_this.options.onSignal != null) {
-              message = configureMessage(payload);
-              _this.options.onSignal(message);
+            if (payload.eventName === 'subscriber_joined') {
+              if (_this.options.onSubscriberJoined != null) {
+                _this.options.onSubscriberJoined(payload);
+              }
+            } else if (payload.eventName === 'subscriber_left') {
+              if (_this.options.onSubscriberLeft != null) {
+                _this.options.onSubscriberLeft(payload);
+              }
+            } else {
+              if (_this.options.onSignal != null) {
+                _this.options.onSignal(configureMessage(payload));
+              }
             }
           }
           messageAsString = JSON.stringify(json);

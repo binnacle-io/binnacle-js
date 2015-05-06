@@ -24,6 +24,7 @@
             <input name="contextId" type="text" placeholder="Enter the context id..." class="form-control input-sm" />
             <input name="apiKey" type="text" placeholder="Enter the API key..." class="form-control input-sm" />
             <input name="apiSecret" type="text" placeholder="Enter the API secret..." class="form-control input-sm" />
+            <input name="username" type="text" placeholder="Enter your presence id..." class="form-control input-sm" />
             <button type="submit" class="btn btn-inverse">Subscribe</button>
           </fieldset>
         </form>
@@ -95,6 +96,14 @@
           $('#events').prepend($rows);
         }
 
+        var subscriberJoined = function(event) {
+          console.log("subscriber joined: " + event)
+        }
+
+        var subscriberLeft = function(event) {
+          console.log("subscriber left: " + event)
+        }
+
         $subscription = $('#subscription');
         $subscription.submit(function( event ) {
           var endPoint = $( "input[name='endPoint']" ).val();
@@ -103,6 +112,7 @@
           var contextId = $( "input[name='contextId']" ).val();
           var apiKey = $( "input[name='apiKey']" ).val();
           var apiSecret = $( "input[name='apiSecret']" ).val();
+          var username = $( "input[name='username']" ).val();
 
           var client = new Binnacle.Client({
             accountId: accountId,
@@ -114,8 +124,11 @@
             missedMessages: true,
             limit: 5,
             since: 30,
+            identity: username,
             onSignal: binnacleEventHandler,
-            onSignals: binnacleEventsHandler
+            onSignals: binnacleEventsHandler,
+            onSubscriberJoined: subscriberJoined,
+            onSubscriberLeft: subscriberLeft
           });
 
           $('#eventsTable').removeClass('hide');

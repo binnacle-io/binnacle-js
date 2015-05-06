@@ -16,6 +16,7 @@ class Binnacle.Client
 
     @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/" + (x for x in [@options.accountId, @options.appId, @options.contextId] when x?).join('-')
     @appChannelUrl = "#{@options.endPoint}/api/subscribe/" + [@options.accountId, @options.appId].join('-')
+    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.accountId}/#{@options.appId}/#{@options.contextId}"
     @messagesReceived = 0
 
   signal: (event)->
@@ -31,6 +32,10 @@ class Binnacle.Client
       request.url += "?mm=true"
       request.url += "&mm-limit=#{@options.limit}" if @options.limit
       request.url += "&mm-since=#{@options.since}" if @options.since
+
+    if @options.identity
+      sep = if @options.missedMessages then '&' else '?'
+      request.url += "#{sep}psId=#{@options.identity}"
 
     request.contentType = 'application/json'
     request.logLevel = 'debug'
@@ -57,9 +62,12 @@ class Binnacle.Client
               messages.push(configureMessage(message))
             @options.onSignals(messages)
         else
-          if @options.onSignal?
-            message = configureMessage(payload)
-            @options.onSignal(message)
+          if payload.eventName == 'subscriber_joined'
+            @options.onSubscriberJoined(payload) if @options.onSubscriberJoined?
+          else if payload.eventName == 'subscriber_left'
+            @options.onSubscriberLeft(payload) if @options.onSubscriberLeft?
+          else
+            @options.onSignal(configureMessage(payload)) if @options.onSignal?
 
         messageAsString = JSON.stringify(json)
         console.log "Received Message: \n#{messageAsString}"
