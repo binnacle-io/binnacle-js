@@ -34,12 +34,13 @@ Binnacle.Client = (function() {
     return post(this.contextChannelUrl, event);
   };
 
-  Client.prototype.subscribers = function() {
+  Client.prototype.subscribers = function(callback) {
     var http;
     http = new Binnacle.Http({
       url: this.subscribersUrl,
       method: 'get',
-      json: true
+      json: true,
+      sucess: callback
     });
     return http.execute();
   };

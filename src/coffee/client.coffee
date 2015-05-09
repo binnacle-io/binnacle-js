@@ -23,11 +23,12 @@ class Binnacle.Client
     console.log "Signalling #{event}"
     post(@contextChannelUrl, event)
 
-  subscribers: ->
+  subscribers: (callback)->
     http = new (Binnacle.Http)(
       url: @subscribersUrl
       method: 'get'
       json: true
+      sucess: callback
     )
     http.execute()
 

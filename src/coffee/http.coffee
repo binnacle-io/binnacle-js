@@ -19,27 +19,37 @@ class Binnacle.Http
     else if window.XMLHttpRequest
       @xhr = new XMLHttpRequest
 
-    @setHeaders(@options.headers)
+    @options.host ?= {}
 
   execute: ->
-    result = null
     if @xhr
+      # set xhr callbacks
+      @xhr.onreadystatechange = =>
+        if @xhr.readyState == 4 and @xhr.status == 200
+          result = @xhr.responseText
+
+          if @options.json == true and typeof JSON != 'undefined'
+            result = JSON.parse(result)
+
+          @options.success and @options.sucess.apply(@options.host, [result, @xhr])
+        else if @xhr.readyState == 4
+          @options.failure and @options.failure.apply(@options.host, [ @xhr ])
+
+        @options.ensure and @options.ensure.apply(@options.host, [ @xhr ])
+
+      # set request url plus headers
       if @options.method == 'get'
-        @xhr.open 'GET', @options.url + getParams(@options.data, @options.url), @options.asynch
+        @xhr.open 'GET', @options.url + getParams(@options.data, @options.url), true
       else
-        @xhr.open @options.method, @options.url, @options.asynch
+        @xhr.open @options.method, @options.url, true
         @setHeaders
           'X-Requested-With': 'XMLHttpRequest'
           'Content-type': 'application/x-www-form-urlencoded'
 
+      @setHeaders(@options.headers)
+
+      # execute the request
       if @options.method == 'get' then @xhr.send() else @xhr.send(getParams(@options.data))
-
-      result = @xhr.responseText
-
-      if @options.json == true and typeof JSON != 'undefined'
-        result = JSON.parse(result)
-
-    result
 
   setHeaders: (headers) ->
     for name of headers

@@ -10,39 +10,51 @@ Binnacle.Http = (function() {
   var getParams;
 
   function Http(options) {
+    var base;
     this.options = options;
     if (window.ActiveXObject) {
       this.xhr = new ActiveXObject('Microsoft.XMLHTTP');
     } else if (window.XMLHttpRequest) {
       this.xhr = new XMLHttpRequest;
     }
-    this.setHeaders(this.options.headers);
+    if ((base = this.options).host == null) {
+      base.host = {};
+    }
   }
 
   Http.prototype.execute = function() {
-    var result;
-    result = null;
     if (this.xhr) {
+      this.xhr.onreadystatechange = (function(_this) {
+        return function() {
+          var result;
+          if (_this.xhr.readyState === 4 && _this.xhr.status === 200) {
+            result = _this.xhr.responseText;
+            if (_this.options.json === true && typeof JSON !== 'undefined') {
+              result = JSON.parse(result);
+            }
+            _this.options.success && _this.options.sucess.apply(_this.options.host, [result, _this.xhr]);
+          } else if (_this.xhr.readyState === 4) {
+            _this.options.failure && _this.options.failure.apply(_this.options.host, [_this.xhr]);
+          }
+          return _this.options.ensure && _this.options.ensure.apply(_this.options.host, [_this.xhr]);
+        };
+      })(this);
       if (this.options.method === 'get') {
-        this.xhr.open('GET', this.options.url + getParams(this.options.data, this.options.url), this.options.asynch);
+        this.xhr.open('GET', this.options.url + getParams(this.options.data, this.options.url), true);
       } else {
-        this.xhr.open(this.options.method, this.options.url, this.options.asynch);
+        this.xhr.open(this.options.method, this.options.url, true);
         this.setHeaders({
           'X-Requested-With': 'XMLHttpRequest',
           'Content-type': 'application/x-www-form-urlencoded'
         });
       }
+      this.setHeaders(this.options.headers);
       if (this.options.method === 'get') {
-        this.xhr.send();
+        return this.xhr.send();
       } else {
-        this.xhr.send(getParams(this.options.data));
-      }
-      result = this.xhr.responseText;
-      if (this.options.json === true && typeof JSON !== 'undefined') {
-        result = JSON.parse(result);
+        return this.xhr.send(getParams(this.options.data));
       }
     }
-    return result;
   };
 
   Http.prototype.setHeaders = function(headers) {
