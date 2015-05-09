@@ -2,7 +2,7 @@
 # binnacle
 # https://github.com/integrallis/binnacle-js
 #
-# Copyright (c) 2015 Brian Sam-Bodden
+# Copyright (c) 2015 Binnacle, LLC.
 # Licensed under the MIT license.
 #
 
@@ -22,6 +22,14 @@ class Binnacle.Client
   signal: (event)->
     console.log "Signalling #{event}"
     post(@contextChannelUrl, event)
+
+  subscribers: ->
+    http = new (Binnacle.Http)(
+      url: @subscribersUrl
+      method: 'get'
+      json: true
+    )
+    http.execute()
 
   subscribe: (subscribeToApp = false) ->
     socket = atmosphere

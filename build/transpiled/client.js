@@ -34,6 +34,16 @@ Binnacle.Client = (function() {
     return post(this.contextChannelUrl, event);
   };
 
+  Client.prototype.subscribers = function() {
+    var http;
+    http = new Binnacle.Http({
+      url: this.subscribersUrl,
+      method: 'get',
+      json: true
+    });
+    return http.execute();
+  };
+
   Client.prototype.subscribe = function(subscribeToApp) {
     var request, sep, socket;
     if (subscribeToApp == null) {

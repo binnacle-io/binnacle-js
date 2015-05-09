@@ -52,7 +52,7 @@ module.exports = (grunt)->
         banner: '<%= meta.banner %>'
         stripBanners: true
       dist:
-        src: ['build/dependencies/bower_dependencies.js', 'build/transpiled/client.js']
+        src: ['build/dependencies/bower_dependencies.js', 'build/transpiled/http.js', 'build/transpiled/client.js']
         dest: 'build/dist/binnacle.js'
 
     uglify:
@@ -88,7 +88,7 @@ module.exports = (grunt)->
       src: 'build/transpiled/client.js'
 
       coverage:
-        src: 'build/transpiled/client.js'
+        src: ['build/transpiled/http.js', 'build/transpiled/client.js']
         options:
           specs: 'build/test/<%= pkg.name %>.spec.js'
           template: require('grunt-template-jasmine-istanbul')
