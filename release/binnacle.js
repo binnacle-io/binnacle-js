@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.0.6
+# Binnacle JS - v0.0.7
 # ==============================================================
 # Copyright (c) 2015 Brian Sam-Bodden
 # Licensed MIT.
@@ -6473,36 +6473,225 @@ if (root.Binnacle == null) {
   root.Binnacle = {};
 }
 
+Binnacle.Http = (function() {
+  var getParams;
+
+  function Http(options) {
+    var base;
+    this.options = options;
+    if (window.ActiveXObject) {
+      this.xhr = new ActiveXObject('Microsoft.XMLHTTP');
+    } else if (window.XMLHttpRequest) {
+      this.xhr = new XMLHttpRequest;
+    }
+    if ((base = this.options).host == null) {
+      base.host = {};
+    }
+  }
+
+  Http.prototype.execute = function() {
+    var contextType;
+    if (this.xhr) {
+      this.xhr.onreadystatechange = (function(_this) {
+        return function() {
+          var result;
+          if (_this.xhr.readyState === 4 && _this.xhr.status === 200) {
+            result = _this.xhr.responseText;
+            if (_this.options.json && typeof JSON !== 'undefined') {
+              result = JSON.parse(result);
+            }
+            _this.options.success && _this.options.sucess.apply(_this.options.host, [result, _this.xhr]);
+          } else if (_this.xhr.readyState === 4) {
+            _this.options.failure && _this.options.failure.apply(_this.options.host, [_this.xhr]);
+          }
+          return _this.options.ensure && _this.options.ensure.apply(_this.options.host, [_this.xhr]);
+        };
+      })(this);
+      if (this.options.method === 'get') {
+        this.xhr.open('GET', this.options.url + getParams(this.options.data, this.options.url), true);
+      } else {
+        if (this.options.auth) {
+          this.xhr.open(this.options.method, this.options.url, true, this.options.user, this.options.password);
+        } else {
+          this.xhr.open(this.options.method, this.options.url, true);
+        }
+      }
+      if (this.options.data) {
+        contextType = this.options.json ? 'application/json' : 'application/x-www-form-urlencoded';
+        this.setHeaders({
+          'Content-Type': contextType
+        });
+      }
+      this.setHeaders({
+        'X-Requested-With': 'XMLHttpRequest'
+      });
+      if (this.options.auth) {
+        this.setHeaders({
+          'Authorization': 'Basic ' + btoa(this.options.user + ":" + this.options.password)
+        });
+      }
+      this.setHeaders(this.options.headers);
+      if (this.options.method === 'get') {
+        return this.xhr.send();
+      } else if (this.options.json) {
+        return this.xhr.send(JSON.stringify(this.options.data));
+      } else {
+        return this.xhr.send(getParams(this.options.data));
+      }
+    }
+  };
+
+  Http.prototype.setHeaders = function(headers) {
+    var name, results;
+    results = [];
+    for (name in headers) {
+      results.push(this.xhr && this.xhr.setRequestHeader(name, headers[name]));
+    }
+    return results;
+  };
+
+  getParams = function(data, url) {
+    var arr, name, str;
+    arr = [];
+    str = void 0;
+    for (name in data) {
+      arr.push(name + "=" + (encodeURIComponent(data[name])));
+    }
+    str = arr.join('&');
+    if (str !== '') {
+      if (url) {
+        if (url.indexOf('?') < 0) {
+          return "?" + str;
+        } else {
+          return "&" + str;
+        }
+      } else {
+        return str;
+      }
+    }
+    return '';
+  };
+
+  return Http;
+
+})();
+
+var root;
+
+root = typeof global !== "undefined" && global !== null ? global : window;
+
+if (root.Binnacle == null) {
+  root.Binnacle = {};
+}
+
+Binnacle.Event = (function() {
+  function Event(options) {
+    if (options.logLevel == null) {
+      options.logLevel = 'EVENT';
+    }
+    if (options.environment == null) {
+      options.environment = {};
+    }
+    if (options.tags == null) {
+      options.tags = [];
+    }
+    if (options.json == null) {
+      options.json = {};
+    }
+    if (this.accountId == null) {
+      this.accountId = options.accountId;
+    }
+    if (this.appId == null) {
+      this.appId = options.appId;
+    }
+    if (this.contextId == null) {
+      this.contextId = options.contextId;
+    }
+    if (this.sessionId == null) {
+      this.sessionId = options.sessionId;
+    }
+    if (this.eventName == null) {
+      this.eventName = options.eventName;
+    }
+    if (this.clientEventTime == null) {
+      this.clientEventTime = options.clientEventTime;
+    }
+    if (this.clientId == null) {
+      this.clientId = options.clientId;
+    }
+    if (this.logLevel == null) {
+      this.logLevel = options.logLevel;
+    }
+    if (this.environment == null) {
+      this.environment = options.environment;
+    }
+    if (this.tags == null) {
+      this.tags = options.tags;
+    }
+    if (this.json == null) {
+      this.json = options.json;
+    }
+  }
+
+  return Event;
+
+})();
+
 Binnacle.Client = (function() {
   var configureMessage;
 
   function Client(options) {
     var x;
     this.options = options;
-    this.contextChannelUrl = ("" + this.options.endPoint + "/api/subscribe/") + ((function() {
-      var _i, _len, _ref, _results;
-      _ref = [this.options.accountId, this.options.appId, this.options.contextId];
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        x = _ref[_i];
+    this.contextChannelUrl = (this.options.endPoint + "/api/subscribe/") + ((function() {
+      var i, len, ref, results;
+      ref = [this.options.accountId, this.options.appId, this.options.contextId];
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        x = ref[i];
         if (x != null) {
-          _results.push(x);
+          results.push(x);
         }
       }
-      return _results;
+      return results;
     }).call(this)).join('-');
-    this.appChannelUrl = ("" + this.options.endPoint + "/api/subscribe/") + [this.options.accountId, this.options.appId].join('-');
+    this.appChannelUrl = (this.options.endPoint + "/api/subscribe/") + [this.options.accountId, this.options.appId].join('-');
+    this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
+    this.signalUrl = this.options.endPoint + "/api/events/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
     this.messagesReceived = 0;
   }
 
   Client.prototype.signal = function(event) {
-    console.log("Signalling " + event);
-    return post(this.contextChannelUrl, event);
+    var http;
+    event.accountId = this.options.accountId;
+    event.appId = this.options.appId;
+    event.contextId = this.options.contextId;
+    http = new Binnacle.Http({
+      url: this.signalUrl,
+      method: 'post',
+      json: true,
+      data: event,
+      auth: true,
+      user: this.options.apiKey,
+      password: this.options.apiSecret
+    });
+    http.execute();
+    return console.log("Signalling " + event);
+  };
+
+  Client.prototype.subscribers = function(callback) {
+    var http;
+    http = new Binnacle.Http({
+      url: this.subscribersUrl,
+      method: 'get',
+      json: true,
+      sucess: callback
+    });
+    return http.execute();
   };
 
   Client.prototype.subscribe = function(subscribeToApp) {
-    var request, socket,
-      _this = this;
+    var request, sep, socket;
     if (subscribeToApp == null) {
       subscribeToApp = false;
     }
@@ -6518,45 +6707,66 @@ Binnacle.Client = (function() {
         request.url += "&mm-since=" + this.options.since;
       }
     }
+    if (this.options.identity) {
+      sep = this.options.missedMessages ? '&' : '?';
+      request.url += sep + "psId=" + this.options.identity;
+    }
     request.contentType = 'application/json';
     request.logLevel = 'debug';
     request.transport = 'websocket';
     request.fallbackTransport = 'long-polling';
     request.reconnectInterval = 1500;
+    request.headers = {
+      Authorization: 'Basic ' + btoa(this.options.apiKey + ":" + this.options.apiSecret)
+    };
     request.onOpen = function(response) {
       return console.log("Binnacle connected using " + response.transport);
     };
     request.onError = function(response) {
       return console.log("Sorry, but there's some problem with your socket or the Binnacle server is down");
     };
-    request.onMessage = function(response) {
-      var e, json, message, messageAsString, messages, payload, _i, _len;
-      _this.messagesReceived = _this.messagesReceived + 1;
-      json = response.responseBody;
-      try {
-        payload = JSON.parse(json);
-        if (Object.prototype.toString.call(payload) === '[object Array]') {
-          if (_this.options.onSignals != null) {
-            messages = [];
-            for (_i = 0, _len = payload.length; _i < _len; _i++) {
-              message = payload[_i];
-              messages.push(configureMessage(message));
+    request.onMessage = (function(_this) {
+      return function(response) {
+        var e, i, json, len, message, messageAsString, messages, payload;
+        _this.messagesReceived = _this.messagesReceived + 1;
+        json = response.responseBody;
+        try {
+          payload = JSON.parse(json);
+          if (Object.prototype.toString.call(payload) === '[object Array]') {
+            if (_this.options.onSignals != null) {
+              messages = [];
+              for (i = 0, len = payload.length; i < len; i++) {
+                message = payload[i];
+                messages.push(configureMessage(message));
+              }
+              _this.options.onSignals(messages);
             }
-            _this.options.onSignals(messages);
+          } else {
+            if (payload.eventName === 'subscriber_joined') {
+              if (_this.options.onSubscriberJoined != null) {
+                _this.options.onSubscriberJoined(payload);
+              }
+            } else if (payload.eventName === 'subscriber_left') {
+              if (_this.options.onSubscriberLeft != null) {
+                _this.options.onSubscriberLeft(payload);
+              }
+            } else if (payload.eventName === 'error') {
+              console.log("ERROR: " + payload.message);
+              socket.unsubscribe();
+            } else {
+              if (_this.options.onSignal != null) {
+                _this.options.onSignal(configureMessage(payload));
+              }
+            }
           }
-        } else {
-          if (_this.options.onSignal != null) {
-            message = configureMessage(payload);
-            _this.options.onSignal(message);
-          }
+          messageAsString = JSON.stringify(json);
+          return console.log("Received Message: \n" + messageAsString);
+        } catch (_error) {
+          e = _error;
+          return console.log("Error processing payload: \n " + json, e);
         }
-        messageAsString = JSON.stringify(json);
-        return console.log("Received Message: \n" + messageAsString);
-      } catch (_error) {
-        e = _error;
-        return console.log("Error processing payload: \n " + json, e);
-      }
-    };
+      };
+    })(this);
     return socket.subscribe(request);
   };
 
