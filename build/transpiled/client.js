@@ -138,6 +138,9 @@ Binnacle.Client = (function() {
     request.transport = 'websocket';
     request.fallbackTransport = 'long-polling';
     request.reconnectInterval = 1500;
+    request.headers = {
+      Authorization: 'Basic ' + btoa(this.options.apiKey + ":" + this.options.apiSecret)
+    };
     request.onOpen = function(response) {
       return console.log("Binnacle connected using " + response.transport);
     };
@@ -169,6 +172,9 @@ Binnacle.Client = (function() {
               if (_this.options.onSubscriberLeft != null) {
                 _this.options.onSubscriberLeft(payload);
               }
+            } else if (payload.eventName === 'error') {
+              console.log("ERROR: " + payload.message);
+              socket.unsubscribe();
             } else {
               if (_this.options.onSignal != null) {
                 _this.options.onSignal(configureMessage(payload));

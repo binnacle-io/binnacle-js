@@ -85,6 +85,7 @@ class Binnacle.Client
     request.transport = 'websocket'
     request.fallbackTransport = 'long-polling'
     request.reconnectInterval = 1500
+    request.headers = Authorization : 'Basic ' + btoa("#{@options.apiKey}:#{@options.apiSecret}")
 
     request.onOpen = (response) ->
       console.log "Binnacle connected using #{response.transport}"
@@ -109,6 +110,9 @@ class Binnacle.Client
             @options.onSubscriberJoined(payload) if @options.onSubscriberJoined?
           else if payload.eventName == 'subscriber_left'
             @options.onSubscriberLeft(payload) if @options.onSubscriberLeft?
+          else if payload.eventName == 'error'
+            console.log("ERROR: #{payload.message}")
+            socket.unsubscribe()
           else
             @options.onSignal(configureMessage(payload)) if @options.onSignal?
 

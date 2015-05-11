@@ -177,7 +177,6 @@ module.exports = (grunt)->
   grunt.loadNpmTasks 'grunt-bower-concat'
   grunt.loadNpmTasks 'grunt-release'
   grunt.loadNpmTasks 'grunt-bower-release'
-  grunt.loadNpmTasks 'grunt-template-jasmine-istanbul'
 
   # register tasks
   grunt.registerTask 'default', ['build']
