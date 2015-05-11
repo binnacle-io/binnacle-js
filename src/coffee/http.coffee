@@ -28,7 +28,7 @@ class Binnacle.Http
         if @xhr.readyState == 4 and @xhr.status == 200
           result = @xhr.responseText
 
-          if @options.json == true and typeof JSON != 'undefined'
+          if @options.json and typeof JSON != 'undefined'
             result = JSON.parse(result)
 
           @options.success and @options.sucess.apply(@options.host, [result, @xhr])
@@ -41,15 +41,35 @@ class Binnacle.Http
       if @options.method == 'get'
         @xhr.open 'GET', @options.url + getParams(@options.data, @options.url), true
       else
-        @xhr.open @options.method, @options.url, true
+        if @options.auth
+          @xhr.open @options.method, @options.url, true, @options.user, @options.password
+        else
+          @xhr.open @options.method, @options.url, true
+
+      # set content type if there is data to send
+      if @options.data
+        contextType = if @options.json then 'application/json' else 'application/x-www-form-urlencoded'
         @setHeaders
-          'X-Requested-With': 'XMLHttpRequest'
-          'Content-type': 'application/x-www-form-urlencoded'
+          'Content-Type': contextType
+
+      # set request-with
+      @setHeaders
+        'X-Requested-With': 'XMLHttpRequest'
+
+      # set auth header
+      if @options.auth
+        @setHeaders
+          'Authorization': 'Basic ' + btoa("#{@options.user}:#{@options.password}")
 
       @setHeaders(@options.headers)
 
       # execute the request
-      if @options.method == 'get' then @xhr.send() else @xhr.send(getParams(@options.data))
+      if @options.method == 'get'
+        @xhr.send()
+      else if @options.json
+        @xhr.send(JSON.stringify(@options.data))
+      else
+        @xhr.send(getParams(@options.data))
 
   setHeaders: (headers) ->
     for name of headers

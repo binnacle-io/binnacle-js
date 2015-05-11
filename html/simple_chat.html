@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Binnacle JS Simple Chat</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="../build/lib/bootstrap-css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+    <style type="text/css">
+    #messages {
+      height: 150px;
+      overflow-y: scroll;
+      max-height: 150px;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Binnacle JS Simple Chat</h1>
+
+      <div id="signup">
+  	    <legend>Join/Create a Room</legend>
+
+        <form class="form-inline" id="subscription" method="get">
+          <fieldset>
+            <input name="endPoint" type="text" value="http://localhost:8080" class="form-control input-sm" />
+            <input name="accountId" type="text" placeholder="Enter the account id..." class="form-control input-sm" />
+            <input name="appId" type="text" placeholder="Enter the app id..." class="form-control input-sm" />
+            <input name="contextId" type="text" placeholder="Enter the context id..." class="form-control input-sm" />
+            <input name="apiKey" type="text" placeholder="Enter the API key..." class="form-control input-sm" />
+            <input name="apiSecret" type="text" placeholder="Enter the API secret..." class="form-control input-sm" />
+            <input name="room" type="text" placeholder="Enter your chat room..." class="form-control input-sm" />
+            <input name="username" type="text" placeholder="Enter your presence id..." class="form-control input-sm" />
+            <button type="submit" class="btn btn-inverse">Subscribe</button>
+          </fieldset>
+        </form>
+      </div>
+
+      <div id="room" class="hidden">
+        <legend id="roomname"></legend>
+
+        <div class="well" id="messages">
+          </div>
+
+          <legend id="username"></legend>
+
+          <form class="form-inline" id="chat-form">
+            <fieldset>
+              <input id="message" type="text" placeholder="Type something…" />
+              <button type="submit" class="btn btn-inverse">Submit</button>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="../build/lib/jquery/jquery.js"></script>
+    <script src="../build/lib/jquery-ui/jquery-ui.js"></script>
+    <script src="../build/dist/binnacle.js"></script>
+
+    <script>
+    $(document).ready(function() {
+      var client = null;
+      var sessionId = Math.random().toString(36).substr(2);
+
+      // client.subscribe('/<%= room %>'
+      var binnacleEventHandler = function(event) {
+        $messages = $('#messages');
+        $message = $('<div class="alert alert-success"><i class="icon-user"></i> ' + event.json.user + ' : ' + event.json.message +'</div>')
+        $messages.append($message);
+        $messages.animate({ scrollTop: $messages.prop("scrollHeight") }, 500);
+        $("#messages div:last-child").effect("highlight", {}, 2000);
+      };
+
+      var subscriberJoined = function(event) {
+        console.log("subscriber joined: " + event)
+      }
+
+      var subscriberLeft = function(event) {
+        console.log("subscriber left: " + event)
+      }
+
+      $("#subscription").submit(function(e){
+        e.preventDefault();
+
+        var endPoint = $( "input[name='endPoint']" ).val();
+        var accountId = $( "input[name='accountId']" ).val();
+        var appId = $( "input[name='appId']" ).val();
+        var contextId = $( "input[name='contextId']" ).val();
+        var apiKey = $( "input[name='apiKey']" ).val();
+        var apiSecret = $( "input[name='apiSecret']" ).val();
+        var username = $( "input[name='username']" ).val();
+        var room = $( "input[name='room']" ).val();
+
+        client = new Binnacle.Client({
+          accountId: accountId,
+          appId: appId,
+          apiKey: apiKey,
+          apiSecret: apiSecret,
+          endPoint: endPoint,
+          contextId: contextId,
+          missedMessages: true,
+          limit: 5,
+          since: 30,
+          identity: username,
+          onSignal: binnacleEventHandler,
+          onSubscriberJoined: subscriberJoined,
+          onSubscriberLeft: subscriberLeft
+        });
+
+        $('#room').removeClass('hidden');
+        $('#room').addClass('show');
+
+        $('#signup').removeClass('show');
+        $('#signup').addClass('hidden');
+        client.subscribe();
+      });
+
+      $("#chat-form").submit(function(e){
+        e.preventDefault();
+        var message = $('#message').val();
+
+        var binnacleEvent = new Binnacle.Event({
+          sessionId: sessionId,
+          eventName: 'CHAT',
+          clientId: client.options.identity,
+          json: {
+            user: client.options.identity,
+            message: message
+          }
+        })
+
+        client.signal(binnacleEvent);
+
+        $('#message').val('');
+      });
+
+
+    });
+    </script>
+  </body>
+</html>

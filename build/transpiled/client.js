@@ -6,6 +6,59 @@ if (root.Binnacle == null) {
   root.Binnacle = {};
 }
 
+Binnacle.Event = (function() {
+  function Event(options) {
+    if (options.logLevel == null) {
+      options.logLevel = 'EVENT';
+    }
+    if (options.environment == null) {
+      options.environment = {};
+    }
+    if (options.tags == null) {
+      options.tags = [];
+    }
+    if (options.json == null) {
+      options.json = {};
+    }
+    if (this.accountId == null) {
+      this.accountId = options.accountId;
+    }
+    if (this.appId == null) {
+      this.appId = options.appId;
+    }
+    if (this.contextId == null) {
+      this.contextId = options.contextId;
+    }
+    if (this.sessionId == null) {
+      this.sessionId = options.sessionId;
+    }
+    if (this.eventName == null) {
+      this.eventName = options.eventName;
+    }
+    if (this.clientEventTime == null) {
+      this.clientEventTime = options.clientEventTime;
+    }
+    if (this.clientId == null) {
+      this.clientId = options.clientId;
+    }
+    if (this.logLevel == null) {
+      this.logLevel = options.logLevel;
+    }
+    if (this.environment == null) {
+      this.environment = options.environment;
+    }
+    if (this.tags == null) {
+      this.tags = options.tags;
+    }
+    if (this.json == null) {
+      this.json = options.json;
+    }
+  }
+
+  return Event;
+
+})();
+
 Binnacle.Client = (function() {
   var configureMessage;
 
@@ -26,12 +79,26 @@ Binnacle.Client = (function() {
     }).call(this)).join('-');
     this.appChannelUrl = (this.options.endPoint + "/api/subscribe/") + [this.options.accountId, this.options.appId].join('-');
     this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
+    this.signalUrl = this.options.endPoint + "/api/events/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
     this.messagesReceived = 0;
   }
 
   Client.prototype.signal = function(event) {
-    console.log("Signalling " + event);
-    return post(this.contextChannelUrl, event);
+    var http;
+    event.accountId = this.options.accountId;
+    event.appId = this.options.appId;
+    event.contextId = this.options.contextId;
+    http = new Binnacle.Http({
+      url: this.signalUrl,
+      method: 'post',
+      json: true,
+      data: event,
+      auth: true,
+      user: this.options.apiKey,
+      password: this.options.apiSecret
+    });
+    http.execute();
+    return console.log("Signalling " + event);
   };
 
   Client.prototype.subscribers = function(callback) {

@@ -25,7 +25,8 @@
   ],
   "dependencies": {
     "atmosphere": "2.2.7",
-    "moment": "2.9.0"
+    "moment": "2.9.0",
+    "base64": "0.3.0"
   },
   "devDependencies": {
     "jquery": "2.1.3",

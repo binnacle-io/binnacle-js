@@ -23,13 +23,14 @@ Binnacle.Http = (function() {
   }
 
   Http.prototype.execute = function() {
+    var contextType;
     if (this.xhr) {
       this.xhr.onreadystatechange = (function(_this) {
         return function() {
           var result;
           if (_this.xhr.readyState === 4 && _this.xhr.status === 200) {
             result = _this.xhr.responseText;
-            if (_this.options.json === true && typeof JSON !== 'undefined') {
+            if (_this.options.json && typeof JSON !== 'undefined') {
               result = JSON.parse(result);
             }
             _this.options.success && _this.options.sucess.apply(_this.options.host, [result, _this.xhr]);
@@ -42,15 +43,31 @@ Binnacle.Http = (function() {
       if (this.options.method === 'get') {
         this.xhr.open('GET', this.options.url + getParams(this.options.data, this.options.url), true);
       } else {
-        this.xhr.open(this.options.method, this.options.url, true);
+        if (this.options.auth) {
+          this.xhr.open(this.options.method, this.options.url, true, this.options.user, this.options.password);
+        } else {
+          this.xhr.open(this.options.method, this.options.url, true);
+        }
+      }
+      if (this.options.data) {
+        contextType = this.options.json ? 'application/json' : 'application/x-www-form-urlencoded';
         this.setHeaders({
-          'X-Requested-With': 'XMLHttpRequest',
-          'Content-type': 'application/x-www-form-urlencoded'
+          'Content-Type': contextType
+        });
+      }
+      this.setHeaders({
+        'X-Requested-With': 'XMLHttpRequest'
+      });
+      if (this.options.auth) {
+        this.setHeaders({
+          'Authorization': 'Basic ' + btoa(this.options.user + ":" + this.options.password)
         });
       }
       this.setHeaders(this.options.headers);
       if (this.options.method === 'get') {
         return this.xhr.send();
+      } else if (this.options.json) {
+        return this.xhr.send(JSON.stringify(this.options.data));
       } else {
         return this.xhr.send(getParams(this.options.data));
       }

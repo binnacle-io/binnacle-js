@@ -10,6 +10,26 @@ root = global ? window
 
 root.Binnacle ?= {}
 
+class Binnacle.Event
+  constructor: (options) ->
+    # defaults
+    options.logLevel ?= 'EVENT'
+    options.environment ?= {}
+    options.tags ?= []
+    options.json ?= {}
+
+    @accountId ?= options.accountId
+    @appId ?= options.appId
+    @contextId ?= options.contextId
+    @sessionId ?= options.sessionId
+    @eventName ?= options.eventName
+    @clientEventTime ?= options.clientEventTime
+    @clientId ?= options.clientId
+    @logLevel ?= options.logLevel
+    @environment ?= options.environment
+    @tags ?= options.tags
+    @json ?= options.json
+
 class Binnacle.Client
   constructor: (options) ->
     @options = options
@@ -17,11 +37,25 @@ class Binnacle.Client
     @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/" + (x for x in [@options.accountId, @options.appId, @options.contextId] when x?).join('-')
     @appChannelUrl = "#{@options.endPoint}/api/subscribe/" + [@options.accountId, @options.appId].join('-')
     @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.accountId}/#{@options.appId}/#{@options.contextId}"
+    @signalUrl = "#{@options.endPoint}/api/events/#{@options.accountId}/#{@options.appId}/#{@options.contextId}"
     @messagesReceived = 0
 
   signal: (event)->
+    event.accountId = @options.accountId
+    event.appId = @options.appId
+    event.contextId = @options.contextId
+
+    http = new (Binnacle.Http)(
+      url: @signalUrl
+      method: 'post'
+      json: true
+      data: event
+      auth: true
+      user: @options.apiKey
+      password: @options.apiSecret
+    )
+    http.execute()
     console.log "Signalling #{event}"
-    post(@contextChannelUrl, event)
 
   subscribers: (callback)->
     http = new (Binnacle.Http)(
