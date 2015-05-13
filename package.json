@@ -2,7 +2,7 @@
   "name": "binnacle",
   "title": "Binnacle JS",
   "description": "JQuery Client for Binnacle.io Distributed Logging and Push Service",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "homepage": "https://github.com/integrallis/binnacle-js",
   "author": {
     "name": "Brian Sam-Bodden",

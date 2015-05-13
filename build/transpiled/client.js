@@ -129,6 +129,11 @@ Binnacle.Client = (function() {
         request.url += "&mm-since=" + this.options.since;
       }
     }
+    if (this.options.filterBy) {
+      sep = this.options.missedMessages ? '&' : '?';
+      request.url += sep + "filterBy=" + this.options.filterBy;
+      request.url += "&filterByValue=" + this.options.filterByValue;
+    }
     if (this.options.identity) {
       sep = this.options.missedMessages ? '&' : '?';
       request.url += sep + "psId=" + this.options.identity;

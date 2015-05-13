@@ -108,6 +108,8 @@
           limit: 5,
           since: 30,
           identity: username,
+          filterBy: 'event',
+          filterByValue: room,
           onSignal: binnacleEventHandler,
           onSubscriberJoined: subscriberJoined,
           onSubscriberLeft: subscriberLeft
@@ -124,10 +126,11 @@
       $("#chat-form").submit(function(e){
         e.preventDefault();
         var message = $('#message').val();
+        var room = $( "input[name='room']" ).val();
 
         var binnacleEvent = new Binnacle.Event({
           sessionId: sessionId,
-          eventName: 'CHAT',
+          eventName: room,
           clientId: client.options.identity,
           json: {
             user: client.options.identity,

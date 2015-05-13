@@ -76,6 +76,12 @@ class Binnacle.Client
       request.url += "&mm-limit=#{@options.limit}" if @options.limit
       request.url += "&mm-since=#{@options.since}" if @options.since
 
+    # add filtering options
+    if @options.filterBy
+      sep = if @options.missedMessages then '&' else '?'
+      request.url += "#{sep}filterBy=#{@options.filterBy}"
+      request.url += "&filterByValue=#{@options.filterByValue}"
+
     if @options.identity
       sep = if @options.missedMessages then '&' else '?'
       request.url += "#{sep}psId=#{@options.identity}"
