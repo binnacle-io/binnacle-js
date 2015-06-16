@@ -31,7 +31,7 @@ class Binnacle.Http
           if @options.json and typeof JSON != 'undefined'
             result = JSON.parse(result)
 
-          @options.success and @options.sucess.apply(@options.host, [result, @xhr])
+          @options.success and @options.success.apply(@options.host, [result, @xhr])
         else if @xhr.readyState == 4
           @options.failure and @options.failure.apply(@options.host, [ @xhr ])
 

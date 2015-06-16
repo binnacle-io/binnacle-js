@@ -62,7 +62,10 @@ class Binnacle.Client
       url: @subscribersUrl
       method: 'get'
       json: true
-      sucess: callback
+      auth: true
+      user: @options.apiKey
+      password: @options.apiSecret
+      success: callback
     )
     http.execute()
 
