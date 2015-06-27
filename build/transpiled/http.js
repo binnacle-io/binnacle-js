@@ -33,7 +33,7 @@ Binnacle.Http = (function() {
             if (_this.options.json && typeof JSON !== 'undefined') {
               result = JSON.parse(result);
             }
-            _this.options.success && _this.options.sucess.apply(_this.options.host, [result, _this.xhr]);
+            _this.options.success && _this.options.success.apply(_this.options.host, [result, _this.xhr]);
           } else if (_this.xhr.readyState === 4) {
             _this.options.failure && _this.options.failure.apply(_this.options.host, [_this.xhr]);
           }

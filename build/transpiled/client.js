@@ -107,7 +107,10 @@ Binnacle.Client = (function() {
       url: this.subscribersUrl,
       method: 'get',
       json: true,
-      sucess: callback
+      auth: true,
+      user: this.options.apiKey,
+      password: this.options.apiSecret,
+      success: callback
     });
     return http.execute();
   };
