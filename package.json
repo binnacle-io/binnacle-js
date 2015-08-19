@@ -2,24 +2,24 @@
   "name": "binnacle",
   "title": "Binnacle JS",
   "description": "JQuery Client for Binnacle.io Distributed Logging and Push Service",
-  "version": "0.1.0",
-  "homepage": "https://github.com/integrallis/binnacle-js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/binnacle-io/binnacle-js",
   "author": {
     "name": "Brian Sam-Bodden",
-    "email": "bsbodden@integrallis.com",
+    "email": "brian@binnacle.io",
     "url": "http://binnacle.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/integrallis/binnacle-js.git"
+    "url": "https://github.com/binnacle-io/binnacle-js.git"
   },
   "bugs": {
-    "url": "https://github.com/integrallis/binnacle-js/issues"
+    "url": "https://github.com/binnacle-io/binnacle-js/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/integrallis/binnacle-js/blob/master/LICENSE-MIT"
+      "url": "https://github.com/binnacle-io/binnacle-js/blob/master/LICENSE-MIT"
     }
   ],
   "engines": {

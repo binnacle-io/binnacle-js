@@ -1,6 +1,6 @@
 #
 # binnacle
-# https://github.com/integrallis/binnacle-js
+# https://github.com/binnacle-io/binnacle-js
 #
 # Copyright (c) 2015 Binnacle, LLC.
 # Licensed under the MIT license.
@@ -18,7 +18,6 @@ class Binnacle.Event
     options.tags ?= []
     options.json ?= {}
 
-    @accountId ?= options.accountId
     @appId ?= options.appId
     @contextId ?= options.contextId
     @sessionId ?= options.sessionId
@@ -34,17 +33,13 @@ class Binnacle.Client
   constructor: (options) ->
     @options = options
 
-    @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/" + (x for x in [@options.accountId, @options.appId, @options.contextId] when x?).join('-')
-    @appChannelUrl = "#{@options.endPoint}/api/subscribe/" + [@options.accountId, @options.appId].join('-')
-    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.accountId}/#{@options.appId}/#{@options.contextId}"
-    @signalUrl = "#{@options.endPoint}/api/events/#{@options.accountId}/#{@options.appId}/#{@options.contextId}"
+    @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/#{@options.contextId}"
+    @appChannelUrl = "#{@options.endPoint}/api/subscribe/app/#{@options.appId}"
+    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.contextId}"
+    @signalUrl = "#{@options.endPoint}/api/events/#{@options.contextId}"
     @messagesReceived = 0
 
   signal: (event)->
-    event.accountId = @options.accountId
-    event.appId = @options.appId
-    event.contextId = @options.contextId
-
     http = new (Binnacle.Http)(
       url: @signalUrl
       method: 'post'
@@ -69,10 +64,10 @@ class Binnacle.Client
     )
     http.execute()
 
-  subscribe: (subscribeToApp = false) ->
+  subscribe: () ->
     socket = atmosphere
     request = new atmosphere.AtmosphereRequest()
-    request.url = if subscribeToApp then @appChannelUrl else @contextChannelUrl
+    request.url = if @appChannelUrl then @appChannelUrl else @contextChannelUrl
     # missed messages configuration
     if @options.missedMessages
       request.url += "?mm=true"

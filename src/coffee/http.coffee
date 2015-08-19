@@ -1,6 +1,6 @@
 #
 # binnacle
-# https://github.com/integrallis/binnacle-js
+# https://github.com/binnacle-io/binnacle-js
 #
 # Copyright (c) 2015 Binnacle, LLC.
 # Licensed under the MIT license.

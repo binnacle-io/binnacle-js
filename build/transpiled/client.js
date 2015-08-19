@@ -20,9 +20,6 @@ Binnacle.Event = (function() {
     if (options.json == null) {
       options.json = {};
     }
-    if (this.accountId == null) {
-      this.accountId = options.accountId;
-    }
     if (this.appId == null) {
       this.appId = options.appId;
     }
@@ -63,31 +60,16 @@ Binnacle.Client = (function() {
   var configureMessage;
 
   function Client(options) {
-    var x;
     this.options = options;
-    this.contextChannelUrl = (this.options.endPoint + "/api/subscribe/") + ((function() {
-      var i, len, ref, results;
-      ref = [this.options.accountId, this.options.appId, this.options.contextId];
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        x = ref[i];
-        if (x != null) {
-          results.push(x);
-        }
-      }
-      return results;
-    }).call(this)).join('-');
-    this.appChannelUrl = (this.options.endPoint + "/api/subscribe/") + [this.options.accountId, this.options.appId].join('-');
-    this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
-    this.signalUrl = this.options.endPoint + "/api/events/" + this.options.accountId + "/" + this.options.appId + "/" + this.options.contextId;
+    this.contextChannelUrl = this.options.endPoint + "/api/subscribe/" + this.options.contextId;
+    this.appChannelUrl = this.options.endPoint + "/api/subscribe/app/" + this.options.appId;
+    this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.contextId;
+    this.signalUrl = this.options.endPoint + "/api/events/" + this.options.contextId;
     this.messagesReceived = 0;
   }
 
   Client.prototype.signal = function(event) {
     var http;
-    event.accountId = this.options.accountId;
-    event.appId = this.options.appId;
-    event.contextId = this.options.contextId;
     http = new Binnacle.Http({
       url: this.signalUrl,
       method: 'post',
@@ -115,14 +97,11 @@ Binnacle.Client = (function() {
     return http.execute();
   };
 
-  Client.prototype.subscribe = function(subscribeToApp) {
+  Client.prototype.subscribe = function() {
     var request, sep, socket;
-    if (subscribeToApp == null) {
-      subscribeToApp = false;
-    }
     socket = atmosphere;
     request = new atmosphere.AtmosphereRequest();
-    request.url = subscribeToApp ? this.appChannelUrl : this.contextChannelUrl;
+    request.url = this.appChannelUrl ? this.appChannelUrl : this.contextChannelUrl;
     if (this.options.missedMessages) {
       request.url += "?mm=true";
       if (this.options.limit) {
