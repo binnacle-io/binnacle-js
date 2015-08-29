@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.1.1
+# Binnacle JS - v0.1.2
 # ==============================================================
 # Copyright (c) 2015 Brian Sam-Bodden
 # Licensed MIT.
@@ -6665,6 +6665,9 @@ Binnacle.Event = (function() {
     if (options.json == null) {
       options.json = {};
     }
+    if (this.accountId == null) {
+      this.accountId = options.accountId;
+    }
     if (this.appId == null) {
       this.appId = options.appId;
     }
@@ -6706,9 +6709,10 @@ Binnacle.Client = (function() {
 
   function Client(options) {
     this.options = options;
-    this.contextChannelUrl = this.options.endPoint + "/api/subscribe/" + this.options.contextId;
+    this.contextChannelUrl = this.options.endPoint + "/api/subscribe/ctx/" + this.options.contextId;
     this.appChannelUrl = this.options.endPoint + "/api/subscribe/app/" + this.options.appId;
     this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.contextId;
+    this.notificationsUrl = this.options.endPoint + "/api/subscribe/ntf/" + this.options.accountId;
     this.signalUrl = this.options.endPoint + "/api/events/" + this.options.contextId;
     this.messagesReceived = 0;
   }
@@ -6746,7 +6750,13 @@ Binnacle.Client = (function() {
     var request, sep, socket;
     socket = atmosphere;
     request = new atmosphere.AtmosphereRequest();
-    request.url = this.appChannelUrl ? this.appChannelUrl : this.contextChannelUrl;
+    if (this.options.accountId) {
+      request.url = this.notificationsUrl;
+    } else if (this.options.appId) {
+      request.url = this.appChannelUrl;
+    } else {
+      request.url = this.contextChannelUrl;
+    }
     if (this.options.missedMessages) {
       request.url += "?mm=true";
       if (this.options.limit) {

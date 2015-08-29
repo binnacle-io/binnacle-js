@@ -18,6 +18,7 @@ class Binnacle.Event
     options.tags ?= []
     options.json ?= {}
 
+    @accountId ?= options.accountId
     @appId ?= options.appId
     @contextId ?= options.contextId
     @sessionId ?= options.sessionId
@@ -33,9 +34,17 @@ class Binnacle.Client
   constructor: (options) ->
     @options = options
 
-    @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/#{@options.contextId}"
+    #
+    # /api/subscribe/
+    #   @GET /ctx/{context_id}
+    #   @GET /app/{app_id}
+    #   @GET /ntf/{account_id}
+    #
+
+    @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/ctx/#{@options.contextId}"
     @appChannelUrl = "#{@options.endPoint}/api/subscribe/app/#{@options.appId}"
     @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.contextId}"
+    @notificationsUrl = "#{@options.endPoint}/api/subscribe/ntf/#{@options.accountId}"
     @signalUrl = "#{@options.endPoint}/api/events/#{@options.contextId}"
     @messagesReceived = 0
 
@@ -67,7 +76,15 @@ class Binnacle.Client
   subscribe: () ->
     socket = atmosphere
     request = new atmosphere.AtmosphereRequest()
-    request.url = if @appChannelUrl then @appChannelUrl else @contextChannelUrl
+
+    # configure listeners URL
+    if @options.accountId
+      request.url = @notificationsUrl
+    else if @options.appId
+      request.url = @appChannelUrl
+    else
+      request.url = @contextChannelUrl
+
     # missed messages configuration
     if @options.missedMessages
       request.url += "?mm=true"
