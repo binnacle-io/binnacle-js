@@ -134,7 +134,8 @@ Binnacle.Client = (function() {
     request.logLevel = 'debug';
     request.transport = 'websocket';
     request.fallbackTransport = 'long-polling';
-    request.reconnectInterval = 1500;
+    request.reconnectInterval = 2000;
+    request.maxReconnectOnClose = 300;
     request.headers = {
       Authorization: 'Basic ' + btoa(this.options.apiKey + ":" + this.options.apiSecret)
     };

@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.1.3
+# Binnacle JS - v0.1.4
 # ==============================================================
 # Copyright (c) 2015 Brian Sam-Bodden
 # Licensed MIT.
@@ -6901,7 +6901,8 @@ Binnacle.Client = (function() {
     request.logLevel = 'debug';
     request.transport = 'websocket';
     request.fallbackTransport = 'long-polling';
-    request.reconnectInterval = 1500;
+    request.reconnectInterval = 2000;
+    request.maxReconnectOnClose = 300;
     request.headers = {
       Authorization: 'Basic ' + btoa(this.options.apiKey + ":" + this.options.apiSecret)
     };

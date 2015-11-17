@@ -105,7 +105,8 @@ class Binnacle.Client
     request.logLevel = 'debug'
     request.transport = 'websocket'
     request.fallbackTransport = 'long-polling'
-    request.reconnectInterval = 1500
+    request.reconnectInterval = 2000
+    request.maxReconnectOnClose = 300
     request.headers = Authorization : 'Basic ' + btoa("#{@options.apiKey}:#{@options.apiSecret}")
 
     request.onOpen = (response) ->
