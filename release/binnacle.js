@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.1.5
+# Binnacle JS - v0.1.6
 # ==============================================================
 # Copyright (c) 2016 Brian Sam-Bodden
 # Licensed MIT.
@@ -6718,7 +6718,7 @@ Binnacle.Http = (function() {
         this.setHeaders({
           'Authorization': 'Basic ' + btoa(this.options.user + ":" + this.options.password)
         });
-        if ('withCredentials' in request) {
+        if ('withCredentials' in this.xhr) {
           this.xhr.withCredentials = 'true';
         }
       }
