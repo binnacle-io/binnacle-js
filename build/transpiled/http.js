@@ -62,6 +62,9 @@ Binnacle.Http = (function() {
         this.setHeaders({
           'Authorization': 'Basic ' + btoa(this.options.user + ":" + this.options.password)
         });
+        if ('withCredentials' in request) {
+          this.xhr.withCredentials = 'true';
+        }
       }
       this.setHeaders(this.options.headers);
       if (this.options.method === 'get') {

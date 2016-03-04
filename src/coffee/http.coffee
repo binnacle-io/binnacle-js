@@ -61,6 +61,8 @@ class Binnacle.Http
         @setHeaders
           'Authorization': 'Basic ' + btoa("#{@options.user}:#{@options.password}")
 
+        @xhr.withCredentials = 'true' if 'withCredentials' of request
+
       @setHeaders(@options.headers)
 
       # execute the request
