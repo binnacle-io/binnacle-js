@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.1.6
+# Binnacle JS - v0.1.7
 # ==============================================================
 # Copyright (c) 2016 Brian Sam-Bodden
 # Licensed MIT.
@@ -6679,7 +6679,7 @@ Binnacle.Http = (function() {
   }
 
   Http.prototype.execute = function() {
-    var contextType;
+    var contextType, isFirefox;
     if (this.xhr) {
       this.xhr.onreadystatechange = (function(_this) {
         return function() {
@@ -6699,7 +6699,8 @@ Binnacle.Http = (function() {
       if (this.options.method === 'get') {
         this.xhr.open('GET', this.options.url + getParams(this.options.data, this.options.url), true);
       } else {
-        if (this.options.auth) {
+        isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        if (this.options.auth && !isFirefox) {
           this.xhr.open(this.options.method, this.options.url, true, this.options.user, this.options.password);
         } else {
           this.xhr.open(this.options.method, this.options.url, true);

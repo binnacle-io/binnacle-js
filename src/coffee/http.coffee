@@ -41,7 +41,8 @@ class Binnacle.Http
       if @options.method == 'get'
         @xhr.open 'GET', @options.url + getParams(@options.data, @options.url), true
       else
-        if @options.auth
+        isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+        if @options.auth and !isFirefox
           @xhr.open @options.method, @options.url, true, @options.user, @options.password
         else
           @xhr.open @options.method, @options.url, true
