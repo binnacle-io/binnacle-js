@@ -46,6 +46,7 @@ class Binnacle.Client
     @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.contextId}"
     @notificationsUrl = "#{@options.endPoint}/api/subscribe/ntf/#{@options.accountId}"
     @signalUrl = "#{@options.endPoint}/api/events/#{@options.contextId}"
+    @recentsUrl = "#{@options.endPoint}/api/events/#{@options.contextId}/recents"
     @messagesReceived = 0
 
   signal: (event)->
@@ -60,6 +61,24 @@ class Binnacle.Client
     )
     http.execute()
     console.log "Signalling #{event}"
+
+  recents: (params = {})->
+    limit = params['limit'] || @options.limit
+    since = params['since'] || @options.since
+
+    url = @recentsUrl
+    url += "?limit=#{limit}&since=#{since}"
+
+    http = new (Binnacle.Http)(
+      url: url
+      method: 'get'
+      json: true
+      auth: true
+      user: @options.apiKey
+      password: @options.apiSecret
+      success: @options.onSignals
+    )
+    http.execute()
 
   subscribers: (callback)->
     http = new (Binnacle.Http)(

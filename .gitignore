@@ -6,5 +6,6 @@ build/dependencies/*
 build/dist/*
 build/lib/*
 build/test/*s
+build/transpiled/*
 bower_components
 npm-debug.log
