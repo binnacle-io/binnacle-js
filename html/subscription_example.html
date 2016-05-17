@@ -31,6 +31,7 @@
 
         <button id="missed-messages" class="btn btn-default">Missed Messages</button>
         <button id="clear-all" class="btn btn-default">Clear All</button>
+        <button id="unsubscribe" class="btn btn-default">Unsubscribe</button>
 
         <div id="eventsTable" class="hide">
           <h3>Events</h3>
@@ -65,6 +66,7 @@
 
       <script>
       $(document).ready(function() {
+        var client
 
         $('#clear-all').click(function() {
           $('#events tr').remove()
@@ -111,6 +113,7 @@
         }
 
         $subscription = $('#subscription');
+
         $subscription.submit(function( event ) {
           var endPoint = $( "input[name='endPoint']" ).val();
           var accountId = $( "input[name='accountId']" ).val();
@@ -120,7 +123,7 @@
           var apiSecret = $( "input[name='apiSecret']" ).val();
           var username = $( "input[name='username']" ).val();
 
-          var client = new Binnacle.Client({
+          client = new Binnacle.Client({
             // accountId: accountId,
             // appId: appId,
             apiKey: apiKey,
@@ -139,10 +142,16 @@
 
           $('#eventsTable').removeClass('hide');
           client.subscribe();
-          $('#missed-messages').click(function() {
-            client.recents()
-          });
+
           event.preventDefault();
+        });
+
+        $('#missed-messages').click(function() {
+          client.recents()
+        });
+
+        $('#unsubscribe').click(function() {
+          client.unsubscribe()
         });
       });
       </script>

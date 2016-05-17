@@ -48,6 +48,7 @@ class Binnacle.Client
     @signalUrl = "#{@options.endPoint}/api/events/#{@options.contextId}"
     @recentsUrl = "#{@options.endPoint}/api/events/#{@options.contextId}/recents"
     @messagesReceived = 0
+    @socket = atmosphere
 
   signal: (event)->
     http = new (Binnacle.Http)(
@@ -93,7 +94,6 @@ class Binnacle.Client
     http.execute()
 
   subscribe: () ->
-    socket = atmosphere
     request = new atmosphere.AtmosphereRequest()
 
     # configure listeners URL
@@ -126,6 +126,7 @@ class Binnacle.Client
     request.fallbackTransport = 'long-polling'
     request.reconnectInterval = 2000
     request.maxReconnectOnClose = 300
+    request.timeout = 86400000 # 24 hours
     request.headers = Authorization : 'Basic ' + btoa("#{@options.apiKey}:#{@options.apiSecret}")
 
     request.onOpen = (response) ->
@@ -153,7 +154,7 @@ class Binnacle.Client
             @options.onSubscriberLeft(payload) if @options.onSubscriberLeft?
           else if payload.eventName == 'error'
             console.log("ERROR: #{payload.message}")
-            socket.unsubscribe()
+            @socket.unsubscribe()
           else
             @options.onSignal(configureMessage(payload)) if @options.onSignal?
 
@@ -162,7 +163,10 @@ class Binnacle.Client
       catch e
         console.log "Error processing payload: \n #{json}", e
 
-    socket.subscribe(request)
+    @socket.subscribe(request)
+
+  unsubscribe: () ->
+    @socket.unsubscribe()
 
   messagesReceived:
     @messagesReceived
