@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.2.0
+# Binnacle JS - v0.2.1
 # ==============================================================
 # Copyright (c) 2016 Brian Sam-Bodden
 # Licensed MIT.
@@ -7705,6 +7705,7 @@ Binnacle.Client = (function() {
     this.signalUrl = this.options.endPoint + "/api/events/" + this.options.contextId;
     this.recentsUrl = this.options.endPoint + "/api/events/" + this.options.contextId + "/recents";
     this.messagesReceived = 0;
+    this.socket = atmosphere;
   }
 
   Client.prototype.signal = function(event) {
@@ -7758,8 +7759,7 @@ Binnacle.Client = (function() {
   };
 
   Client.prototype.subscribe = function() {
-    var request, sep, socket;
-    socket = atmosphere;
+    var request, sep;
     request = new atmosphere.AtmosphereRequest();
     if (this.options.accountId) {
       request.url = this.notificationsUrl;
@@ -7792,6 +7792,7 @@ Binnacle.Client = (function() {
     request.fallbackTransport = 'long-polling';
     request.reconnectInterval = 2000;
     request.maxReconnectOnClose = 300;
+    request.timeout = 86400000;
     request.headers = {
       Authorization: 'Basic ' + btoa(this.options.apiKey + ":" + this.options.apiSecret)
     };
@@ -7828,7 +7829,7 @@ Binnacle.Client = (function() {
               }
             } else if (payload.eventName === 'error') {
               console.log("ERROR: " + payload.message);
-              socket.unsubscribe();
+              _this.socket.unsubscribe();
             } else {
               if (_this.options.onSignal != null) {
                 _this.options.onSignal(configureMessage(payload));
@@ -7843,7 +7844,11 @@ Binnacle.Client = (function() {
         }
       };
     })(this);
-    return socket.subscribe(request);
+    return this.socket.subscribe(request);
+  };
+
+  Client.prototype.unsubscribe = function() {
+    return this.socket.unsubscribe();
   };
 
   Client.prototype.messagesReceived = Client.messagesReceived;
