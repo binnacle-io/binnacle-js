@@ -20,7 +20,7 @@ class Binnacle.Event
 
     @accountId ?= options.accountId
     @appId ?= options.appId
-    @contextId ?= options.contextId
+    @channelId ?= options.channelId
     @sessionId ?= options.sessionId
     @eventName ?= options.eventName
     @clientEventTime ?= options.clientEventTime
@@ -36,17 +36,17 @@ class Binnacle.Client
 
     #
     # /api/subscribe/
-    #   @GET /ctx/{context_id}
+    #   @GET /ctx/{channel_id}
     #   @GET /app/{app_id}
     #   @GET /ntf/{account_id}
     #
 
-    @contextChannelUrl =  "#{@options.endPoint}/api/subscribe/ctx/#{@options.contextId}"
+    @channelChannelUrl =  "#{@options.endPoint}/api/subscribe/channel/#{@options.channelId}"
     @appChannelUrl = "#{@options.endPoint}/api/subscribe/app/#{@options.appId}"
-    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.contextId}"
+    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.channelId}"
     @notificationsUrl = "#{@options.endPoint}/api/subscribe/ntf/#{@options.accountId}"
-    @signalUrl = "#{@options.endPoint}/api/events/#{@options.contextId}"
-    @recentsUrl = "#{@options.endPoint}/api/events/#{@options.contextId}/recents"
+    @signalUrl = "#{@options.endPoint}/api/events/#{@options.channelId}"
+    @recentsUrl = "#{@options.endPoint}/api/events/#{@options.channelId}/recents"
     @messagesReceived = 0
     @socket = atmosphere
 
@@ -102,7 +102,7 @@ class Binnacle.Client
     else if @options.appId
       request.url = @appChannelUrl
     else
-      request.url = @contextChannelUrl
+      request.url = @channelChannelUrl
 
     # missed messages configuration
     if @options.missedMessages

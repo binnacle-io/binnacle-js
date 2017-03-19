@@ -30,7 +30,7 @@
             <input name="endPoint" type="text" value="http://localhost:8080" class="form-control input-sm" />
             <input name="accountId" type="text" placeholder="Enter the account id..." class="form-control input-sm" />
             <input name="appId" type="text" placeholder="Enter the app id..." class="form-control input-sm" />
-            <input name="contextId" type="text" placeholder="Enter the context id..." class="form-control input-sm" />
+            <input name="channelId" type="text" placeholder="Enter the channel id..." class="form-control input-sm" />
             <input name="apiKey" type="text" placeholder="Enter the API key..." class="form-control input-sm" />
             <input name="apiSecret" type="text" placeholder="Enter the API secret..." class="form-control input-sm" />
             <input name="room" type="text" placeholder="Enter your chat room..." class="form-control input-sm" />
@@ -91,7 +91,7 @@
         var endPoint = $( "input[name='endPoint']" ).val();
         var accountId = $( "input[name='accountId']" ).val();
         var appId = $( "input[name='appId']" ).val();
-        var contextId = $( "input[name='contextId']" ).val();
+        var channelId = $( "input[name='channelId']" ).val();
         var apiKey = $( "input[name='apiKey']" ).val();
         var apiSecret = $( "input[name='apiSecret']" ).val();
         var username = $( "input[name='username']" ).val();
@@ -103,7 +103,7 @@
           apiKey: apiKey,
           apiSecret: apiSecret,
           endPoint: endPoint,
-          contextId: contextId,
+          channelId: channelId,
           missedMessages: true,
           limit: 5,
           since: 30,
