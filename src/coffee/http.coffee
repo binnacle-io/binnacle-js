@@ -2,7 +2,7 @@
 # binnacle
 # https://github.com/binnacle-io/binnacle-js
 #
-# Copyright (c) 2015 Binnacle, LLC.
+# Copyright (c) 2017 Binnacle, LLC.
 # Licensed under the MIT license.
 #
 

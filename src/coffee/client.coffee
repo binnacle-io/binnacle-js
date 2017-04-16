@@ -2,7 +2,7 @@
 # binnacle
 # https://github.com/binnacle-io/binnacle-js
 #
-# Copyright (c) 2015 Binnacle, LLC.
+# Copyright (c) 2017 Binnacle, LLC.
 # Licensed under the MIT license.
 #
 
@@ -47,6 +47,7 @@ class Binnacle.Client
     @notificationsUrl = "#{@options.endPoint}/api/subscribe/ntf/#{@options.accountId}"
     @signalUrl = "#{@options.endPoint}/api/events/#{@options.channelId}"
     @recentsUrl = "#{@options.endPoint}/api/events/#{@options.channelId}/recents"
+
     @messagesReceived = 0
     @socket = atmosphere
 
@@ -172,7 +173,7 @@ class Binnacle.Client
     @messagesReceived
 
   #
-  # Private Methods (sorta)
+  # Private
   #
   configureMessage = (message) ->
     message.eventTime = moment(new Date(message['eventTime'])).format()
