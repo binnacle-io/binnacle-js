@@ -1,5 +1,5 @@
 /* ===========================================================
-# Binnacle JS - v0.2.5
+# Binnacle JS - v0.2.6
 # ==============================================================
 # Copyright (c) 2017 Brian Sam-Bodden
 # Licensed .
@@ -8682,7 +8682,7 @@ Binnacle.Event = (function() {
       options.logLevel = 'EVENT';
     }
     if (options.environment == null) {
-      options.environment = {};
+      options.environment = 'production';
     }
     if (options.tags == null) {
       options.tags = [];
@@ -8733,13 +8733,16 @@ Binnacle.Client = (function() {
   var configureMessage;
 
   function Client(options) {
+    if (options.environment == null) {
+      options.environment = 'production';
+    }
     this.options = options;
-    this.channelChannelUrl = this.options.endPoint + "/api/subscribe/channel/" + this.options.channelId;
-    this.appChannelUrl = this.options.endPoint + "/api/subscribe/app/" + this.options.appId;
-    this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.channelId;
+    this.channelChannelUrl = this.options.endPoint + "/api/subscribe/channel/" + this.options.channelId + "/" + this.options.environment;
+    this.appChannelUrl = this.options.endPoint + "/api/subscribe/app/" + this.options.appId + "/" + this.options.environment;
+    this.subscribersUrl = this.options.endPoint + "/api/subscribers/" + this.options.channelId + "/" + this.options.environment;
     this.notificationsUrl = this.options.endPoint + "/api/subscribe/ntf/" + this.options.accountId;
     this.signalUrl = this.options.endPoint + "/api/events/" + this.options.channelId;
-    this.recentsUrl = this.options.endPoint + "/api/events/" + this.options.channelId + "/recents";
+    this.recentsUrl = this.options.endPoint + "/api/events/" + this.options.channelId + "/{environment}/recents";
     this.messagesReceived = 0;
     this.socket = atmosphere;
   }
@@ -8832,12 +8835,22 @@ Binnacle.Client = (function() {
     request.headers = {
       Authorization: 'Basic ' + btoa(this.options.apiKey + ":" + this.options.apiSecret)
     };
-    request.onOpen = function(response) {
-      return console.log("Binnacle connected using " + response.transport);
-    };
-    request.onError = function(response) {
-      return console.log("Sorry, but there's some problem with your socket or the Binnacle server is down");
-    };
+    request.onOpen = (function(_this) {
+      return function(response) {
+        if (_this.options.onOpen != null) {
+          _this.options.onOpen(response);
+        }
+        return console.log("Binnacle connected using " + response.transport);
+      };
+    })(this);
+    request.onError = (function(_this) {
+      return function(response) {
+        if (_this.options.onError != null) {
+          _this.options.onError(response);
+        }
+        return console.log("Sorry, but there's some problem with your socket or the Binnacle server is down");
+      };
+    })(this);
     request.onMessage = (function(_this) {
       return function(response) {
         var e, error, i, json, len, message, messageAsString, messages, payload;
@@ -8976,17 +8989,21 @@ Binnacle.WebPushClient = (function() {
   }
 
   WebPushClient.prototype.subscribe = function() {
-    this.initializeFirebase();
-    return this.getToken();
+    if (!this.messaging) {
+      this.initialize();
+    }
+    return this.getTokenAndSubscribe();
   };
 
-  WebPushClient.prototype.initializeFirebase = function() {
+  WebPushClient.prototype.initialize = function() {
     var config;
     config = {
       apiKey: this.options.firebaseApiKey,
       messagingSenderId: this.options.firebaseMessagingSenderId
     };
-    firebase.initializeApp(config);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config);
+    }
     this.messaging = firebase.messaging();
     this.messaging.onMessage((function(_this) {
       return function(payload) {
@@ -9009,10 +9026,14 @@ Binnacle.WebPushClient = (function() {
   };
 
   WebPushClient.prototype.getToken = function() {
+    return this.messaging.getToken();
+  };
+
+  WebPushClient.prototype.getTokenAndSubscribe = function() {
     return this.messaging.getToken().then((function(_this) {
       return function(currentToken) {
         if (currentToken) {
-          _this.sendTokenToServer(currentToken);
+          return _this.sendTokenToServer(currentToken);
         } else {
           _this.options.onBeforePermissionRequest();
           _this.messaging.requestPermission().then(function() {
@@ -9022,7 +9043,7 @@ Binnacle.WebPushClient = (function() {
             console.log('Unable to get permission to notify.', err);
             return _this.options.onPermissionFailed();
           });
-          setTokenSentToServer(false);
+          return setTokenSentToServer(false);
         }
       };
     })(this))["catch"](function(err) {

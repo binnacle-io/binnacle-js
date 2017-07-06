@@ -1,11 +1,11 @@
 {
   "name": "binnacle",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "homepage": "https://github.com/binnacle-io/binnacle-js",
   "authors": [
     "Brian Sam-Bodden <brian@binnacle.io>"
   ],
-  "description": "JQuery Client for Binnacle.io Messaging Service",
+  "description": "JQuery Client for Binnacle.io - Web Push Notifications and Web Sockets for Rails",
   "main": "release/binnacle.js",
   "moduleType": [
     "globals"
