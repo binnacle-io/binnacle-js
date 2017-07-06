@@ -59,14 +59,15 @@ class Binnacle.WebPushClient
     @webPushTokenRegistrationUrl = "#{@options.endPoint}/api/push-subscriptions/#{@options.channelId}"
 
   subscribe: ->
-    @initializeFirebase()
-    @getToken()
+    @initialize() unless @messaging
+    @getTokenAndSubscribe()
 
-  initializeFirebase: () ->
+  initialize: () ->
     config =
       apiKey: @options.firebaseApiKey
       messagingSenderId: @options.firebaseMessagingSenderId
-    firebase.initializeApp config
+    if !firebase.apps.length
+      firebase.initializeApp config
     @messaging = firebase.messaging()
 
     @messaging.onMessage (payload) =>
@@ -83,6 +84,9 @@ class Binnacle.WebPushClient
         @options.onErrorRetrievingRefreshedToken()
 
   getToken: () ->
+    @messaging.getToken()
+      
+  getTokenAndSubscribe: () ->
     @messaging.getToken().then((currentToken) =>
       if currentToken
         @sendTokenToServer currentToken
@@ -97,7 +101,6 @@ class Binnacle.WebPushClient
           @options.onPermissionFailed()
 
         setTokenSentToServer(false)
-      return
     ).catch (err) ->
       console.log 'An error occurred while retrieving token. ', err
       setTokenSentToServer(false)
