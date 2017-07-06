@@ -10,11 +10,30 @@ root = global ? window
 
 root.Binnacle ?= {}
 
+#
+# Represents a Binnacle Signal/Event
+# 'options' is a object with the following properties:
+#
+# -----------------------------------------------------------------------------------
+# property          | description                     | required      | default value
+# -----------------------------------------------------------------------------------
+# accountId         | Your Account Id                 | YES           |
+# appId             | The target App Id               | YES           |
+# channelId         | The target Channel Id           | YES           |
+# environment       | The environment (Rails.env)     | YES           | 'production'
+# sessionId         | A id for the session            | NO            |
+# eventName         | The event this signal triggers  | NO            |
+# clientEventTime   | The time the event was sent     | NO            |
+# clientId          | Id for the client/sender        | NO            |
+# logLevel          | A log level for the signal      | NO            | 'EVENT'
+# tags              | An array of tags                | NO            |
+# json              | Free form JSON payload          | NO            |
+#
 class Binnacle.Event
   constructor: (options) ->
     # defaults
     options.logLevel ?= 'EVENT'
-    options.environment ?= {}
+    options.environment ?= 'production'
     options.tags ?= []
     options.json ?= {}
 
@@ -32,21 +51,22 @@ class Binnacle.Event
 
 class Binnacle.Client
   constructor: (options) ->
+    options.environment ?= 'production'
     @options = options
 
     #
     # /api/subscribe/
-    #   @GET /ctx/{channel_id}
-    #   @GET /app/{app_id}
+    #   @GET /channel/{channel_id}/{environment}
+    #   @GET /app/{app_id}/{environment}
     #   @GET /ntf/{account_id}
     #
-
-    @channelChannelUrl =  "#{@options.endPoint}/api/subscribe/channel/#{@options.channelId}"
-    @appChannelUrl = "#{@options.endPoint}/api/subscribe/app/#{@options.appId}"
-    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.channelId}"
+    
+    @channelChannelUrl =  "#{@options.endPoint}/api/subscribe/channel/#{@options.channelId}/#{@options.environment}"
+    @appChannelUrl = "#{@options.endPoint}/api/subscribe/app/#{@options.appId}/#{@options.environment}"
+    @subscribersUrl = "#{@options.endPoint}/api/subscribers/#{@options.channelId}/#{@options.environment}"
     @notificationsUrl = "#{@options.endPoint}/api/subscribe/ntf/#{@options.accountId}"
     @signalUrl = "#{@options.endPoint}/api/events/#{@options.channelId}"
-    @recentsUrl = "#{@options.endPoint}/api/events/#{@options.channelId}/recents"
+    @recentsUrl = "#{@options.endPoint}/api/events/#{@options.channelId}/{environment}/recents"
 
     @messagesReceived = 0
     @socket = atmosphere
@@ -130,10 +150,12 @@ class Binnacle.Client
     request.timeout = 86400000 # 24 hours
     request.headers = Authorization : 'Basic ' + btoa("#{@options.apiKey}:#{@options.apiSecret}")
 
-    request.onOpen = (response) ->
+    request.onOpen = (response) =>
+      @options.onOpen(response) if @options.onOpen?
       console.log "Binnacle connected using #{response.transport}"
 
-    request.onError = (response) ->
+    request.onError = (response) =>
+      @options.onError(response) if @options.onError?
       console.log "Sorry, but there's some problem with your socket or the Binnacle server is down"
 
     request.onMessage = (response) =>
