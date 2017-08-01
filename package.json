@@ -2,7 +2,7 @@
   "name": "binnacle",
   "title": "Binnacle JS",
   "description": "JQuery Client for Binnacle.io - Web Push Notifications and Web Sockets for Rails",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "homepage": "https://github.com/binnacle-io/binnacle-js",
   "author": {
     "name": "Brian Sam-Bodden",

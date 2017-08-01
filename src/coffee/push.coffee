@@ -95,12 +95,13 @@ class Binnacle.WebPushClient
 
         @messaging.requestPermission().then(=>
           @options.onPermissionGranted()
-          @getToken()
+          @getToken().then((currentToken) =>
+            @sendTokenToServer(currentToken)
+          )
         ).catch (err) =>
           console.log 'Unable to get permission to notify.', err
           @options.onPermissionFailed()
-
-        setTokenSentToServer(false)
+          setTokenSentToServer(false)
     ).catch (err) ->
       console.log 'An error occurred while retrieving token. ', err
       setTokenSentToServer(false)

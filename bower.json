@@ -1,6 +1,6 @@
 {
   "name": "binnacle",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "homepage": "https://github.com/binnacle-io/binnacle-js",
   "authors": [
     "Brian Sam-Bodden <brian@binnacle.io>"
@@ -25,9 +25,9 @@
   ],
   "dependencies": {
     "atmosphere": "2.3.2",
-    "moment": "2.18.0",
-    "base64": "1.0.0",
-    "firebase": "3.7.1"
+    "moment": "2.18.1",
+    "base64": "1.0.1",
+    "firebase": "4.2.0"
   },
   "devDependencies": {
     "jquery": "3.2.0",
